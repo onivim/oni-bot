@@ -34,7 +34,7 @@ module.exports = (robot) => {
           const number = context.payload.issue.number
 
           if (isBacker(parseInt(user.id, 10))) {
-              context.github.issues.addLabels({ owner, repo, number, labels: ["backer", "needs-triage"]})
+              context.github.issues.addLabels({ owner, repo, number, labels: ["backer"]})
           } else {
             if (config.nonBackerComment) {
               context.github.issues.createComment(context.issue({body: config.nonBackerComment}))
