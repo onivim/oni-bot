@@ -8,10 +8,17 @@ module.exports = (robot) => {
       creator: context.payload.issue.user.login
     }))
 
+    const config = await context.config('config.yml')
+    const user = context.payload.issue.user
+    console.dir(config.backers)
+    const isBacker = (userId) => { return !!(config.backers && config.backers.indexOf(userId) >= 0)}
+
+    console.log("User: " + context.payload.issue.user)
+      console.dir(context.payload.issue.user)
+
     const countIssue = response.data.filter(data => !data.pull_request)
     if (countIssue.length === 1) {
       try {
-        const config = await context.config('config.yml')
         if (config.newIssueWelcomeComment) {
           context.github.issues.createComment(context.issue({body: config.newIssueWelcomeComment}))
         }
@@ -20,6 +27,23 @@ module.exports = (robot) => {
           throw err
         }
       }
-    }
+    } 
+
+      try {
+          const { owner, repo } = context.repo()
+          const number = context.payload.issue.number
+
+          if (isBacker(parseInt(user.id, 10))) {
+              context.github.issues.addLabels({ owner, repo, number, labels: ["backer", "needs-triage"]})
+          } else {
+            if (config.nonBackerComment) {
+              context.github.issues.createComment(context.issue({body: config.nonBackerComment}))
+            }
+          }
+      } catch(err) {
+        if (err.code !== 404) {
+            throw err;
+        }
+      }
   })
 }
