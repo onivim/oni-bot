@@ -1,3 +1,5 @@
+const BACKER_LABEL = "insider"
+
 module.exports = (robot) => {
   console.log('oni bot started')
 
@@ -34,7 +36,7 @@ module.exports = (robot) => {
           const number = context.payload.issue.number
 
           if (isBacker(parseInt(user.id, 10))) {
-              context.github.issues.addLabels({ owner, repo, number, labels: ["backer"]})
+              context.github.issues.addLabels({ owner, repo, number, labels: [BACKER_LABEL]})
           } else {
             if (config.nonBackerComment) {
               context.github.issues.createComment(context.issue({body: config.nonBackerComment}))
